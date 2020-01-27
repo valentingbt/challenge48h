@@ -21,7 +21,7 @@ for x in range (read_pdf.numPages):
         count = 0
         block = ''
 
-    else:
+    elif count < 5:
         print("Content Block ##\n", block, "\n")
         hash = hashlib.sha256()
         hash.update(block.encode('UTF-8'))
