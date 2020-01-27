@@ -2,15 +2,15 @@ import copy
 import datetime
 import hashlib # Cryptage SHA-256
 import random
+import time
 
 userID = random.randint(10000, 99999)
 
 class BlockChain():
     def __init__(self): # initialize when creating a chain
         self.blocks = [self.get_genesis_block()]
-    
-   
-    
+
+
     def get_genesis_block(self): 
         return Block(0, 
                             datetime.datetime.utcnow(), 
@@ -18,14 +18,14 @@ class BlockChain():
                             'arbitrary')
     
     def add_block(self, data):
+        time.sleep(random.randint(0,30))
+        print('Block')
         self.blocks.append(Block(len(self.blocks), 
                                         datetime.datetime.utcnow(), 
                                         data, 
                                         self.blocks[len(self.blocks)-1].hash))
-    
 
-    
-    
+        
     def fork(self, head='latest'):
         if head in ['latest', 'whole', 'all']:
             return copy.deepcopy(self) # deepcopy since they are mutable
@@ -34,7 +34,6 @@ class BlockChain():
             c.blocks = c.blocks[0:head+1]
             return c
     
-
 
 class Block():
     def __init__(self, index, timestamp, data, previous_hash):
@@ -55,9 +54,6 @@ class Block():
         key.update(str(self.previous_hash).encode('utf-8'))
         return key.hexdigest()
     
-
-
-
             
 c = BlockChain()
 for i in range(1,20+1):
@@ -67,7 +63,5 @@ print(c.blocks[3].timestamp)
 print(c.blocks[7].data)
 print(c.blocks[9].hash)
 print(c.blocks[10].previous_hash)
-
-
 print(c.blocks[6].id)
 print(c.blocks[12].id)
