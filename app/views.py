@@ -1,9 +1,10 @@
+# coding: utf-8
 import datetime
 import json
 import PyPDF2, hashlib
-import os
 import requests
-from flask import render_template, redirect, request
+from flask import render_template, redirect
+from random import randint
 
 from app import app
 
@@ -51,10 +52,11 @@ def index():
 @app.route('/submit', methods=['POST'])
 
 def submit_textarea():
-    global i
+    global i, hash, num_page
     count = 0
     count2 = 0
     block = ''
+    content_block = []
 
     # Endpoint to create a new transaction via our application.
 
@@ -62,10 +64,11 @@ def submit_textarea():
     read_pdf = PyPDF2.PdfFileReader(pdf_file)
 
 
-    content_block = []
+
     for x in range(read_pdf.numPages):
 
         content = read_pdf.getPage(x)
+        num_page = read_pdf.getNumPages()
         text = content.extractText() + "\n"
         block += text
         count += 1
@@ -81,16 +84,16 @@ def submit_textarea():
 
         elif count2 == read_pdf.numPages:
             content_block.append(block)
-            print(content_block, "\n")
             hash = hashlib.sha256()
             hash.update(block.encode('UTF-8'))
-            print("Content hash ##\n", hash.hexdigest() + "\n")
+            hash.hexdigest()
 
-    contributor_id = os.urandom(5)
-    print(contributor_id)
+    contributor_id = randint(10000, 99999)
     post_object = {
         'author':  "UUID: "+ str(contributor_id),
         'content': content_block[i],
+        'hash': hash.hexdigest(),
+        'num_pages': num_page,
     }
     i +=1
     # Submit a transaction
