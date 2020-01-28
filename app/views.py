@@ -1,7 +1,7 @@
 import datetime
 import json
 import PyPDF2, hashlib
-
+import os
 import requests
 from flask import render_template, redirect, request
 
@@ -16,11 +16,11 @@ CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
 i = 0
 
+
 def fetch_posts():
-    """
-    Function to fetch the chain from a blockchain node, parse the
-    data and store it locally.
-    """
+
+    # Function to fetch the chain from a blockchain node, parse the data and store it locally.
+
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
     if response.status_code == 200:
@@ -51,16 +51,17 @@ def index():
 @app.route('/submit', methods=['POST'])
 
 def submit_textarea():
-
-    """
-    Endpoint to create a new transaction via our application.
-    """
-    pdf_file = open('INFO_Maupassant_Bel_Ami.pdf', 'rb')
-    read_pdf = PyPDF2.PdfFileReader(pdf_file)
-
+    global i
     count = 0
     count2 = 0
     block = ''
+
+    # Endpoint to create a new transaction via our application.
+
+    pdf_file = open('INFO_Maupassant_Bel_Ami.pdf', 'rb')
+    read_pdf = PyPDF2.PdfFileReader(pdf_file)
+
+
     content_block = []
     for x in range(read_pdf.numPages):
 
@@ -72,11 +73,9 @@ def submit_textarea():
 
         if count == 5:
             content_block.append(block)
-            print(content_block, "\n")
-            #print("Content Block ##\n", block, "\n")
             hash = hashlib.sha256()
             hash.update(block.encode('UTF-8'))
-            print("Content hash ##\n", hash.hexdigest() + "\n")
+            hash.hexdigest()
             count = 0
             block = ''
 
@@ -87,10 +86,10 @@ def submit_textarea():
             hash.update(block.encode('UTF-8'))
             print("Content hash ##\n", hash.hexdigest() + "\n")
 
-    global i
-
+    contributor_id = os.urandom(5)
+    print(contributor_id)
     post_object = {
-        'author': "Hash: " + hash.hexdigest(),
+        'author':  "UUID: "+ str(contributor_id),
         'content': content_block[i],
     }
     i +=1
