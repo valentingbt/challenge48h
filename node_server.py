@@ -133,7 +133,7 @@ peers = set()
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
     tx_data = request.get_json()
-    required_fields = ["author", "content", "hash", "num_page"]
+    required_fields = ["author", "content"]
 
     for field in required_fields:
         if not tx_data.get(field):
@@ -296,5 +296,3 @@ def announce_new_block(block):
 
 # Uncomment this line if you want to specify the port number in the code
 #app.run(debug=True, port=8000)
-
-

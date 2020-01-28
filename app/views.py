@@ -1,10 +1,9 @@
-# coding: utf-8
 import datetime
 import json
 import PyPDF2, hashlib
-import requests
-from flask import render_template, redirect
 from random import randint
+import requests
+from flask import render_template, redirect, request
 
 from app import app
 
@@ -17,11 +16,11 @@ CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
 i = 0
 
-
 def fetch_posts():
-
-    # Function to fetch the chain from a blockchain node, parse the data and store it locally.
-
+    """
+    Function to fetch the chain from a blockchain node, parse the
+    data and store it locally.
+    """
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
     if response.status_code == 200:
@@ -53,18 +52,16 @@ def index():
 
 def submit_textarea():
     global i, hash, num_page
+    """
+    Endpoint to create a new transaction via our application.
+    """
+    pdf_file = open('INFO_Maupassant_Bel_Ami.pdf', 'rb')
+    read_pdf = PyPDF2.PdfFileReader(pdf_file)
+
     count = 0
     count2 = 0
     block = ''
     content_block = []
-
-    # Endpoint to create a new transaction via our application.
-
-    pdf_file = open('INFO_Maupassant_Bel_Ami.pdf', 'rb')
-    read_pdf = PyPDF2.PdfFileReader(pdf_file)
-
-
-
     for x in range(read_pdf.numPages):
 
         content = read_pdf.getPage(x)
@@ -76,21 +73,22 @@ def submit_textarea():
 
         if count == 5:
             content_block.append(block)
+            #print("Content Block ##\n", block, "\n")
             hash = hashlib.sha256()
             hash.update(block.encode('UTF-8'))
-            hash.hexdigest()
             count = 0
             block = ''
 
         elif count2 == read_pdf.numPages:
             content_block.append(block)
+            print(content_block, "\n")
             hash = hashlib.sha256()
             hash.update(block.encode('UTF-8'))
-            hash.hexdigest()
+            print("Content hash ##\n", hash.hexdigest() + "\n")
 
     contributor_id = randint(10000, 99999)
     post_object = {
-        'author':  "UUID: "+ str(contributor_id),
+        'author': str(contributor_id),
         'content': content_block[i],
         'hash': hash.hexdigest(),
         'num_pages': num_page,
@@ -108,6 +106,3 @@ def submit_textarea():
 
 def timestamp_to_string(epoch_time):
     return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
-
-
-
